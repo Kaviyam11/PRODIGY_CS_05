@@ -1,0 +1,23 @@
+from scapy.all import sniff, IP, TCP, Raw, wrpcap
+
+packets = []
+
+def packet_callback(packet):
+    if IP in packet and TCP in packet:
+        ip_src = packet[IP].src
+        ip_dst = packet[IP].dst
+        proto = "TCP"
+        
+        print(f"IP Source: {ip_src} -> IP Destination: {ip_dst} | Protocol: {proto}")
+        
+        if Raw in packet:
+            payload = packet[Raw].load
+            print(f"Payload: {payload}")
+
+        packets.append(packet)
+
+# Sniffing only TCP packets
+sniff(filter="tcp", prn=packet_callback, store=0)
+
+# Write captured packets to a pcap file
+wrpcap("captured_packets.pcap", packets)
